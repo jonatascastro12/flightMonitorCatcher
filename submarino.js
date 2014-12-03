@@ -13,27 +13,6 @@ var actualDate;
 var actualDateBack;
 var allData = {};
 
-var sortObjectByKey = function(obj){
-    var keys = [];
-    var sorted_obj = {};
-
-    for(var key in obj){
-        if(obj.hasOwnProperty(key)){
-            keys.push(key);
-        }
-    }
-
-    // sort keys
-    keys.sort();
-    
-    
-
-    // create new array based on Sorted Keys
-    for(var k = 0; k < keys.length; k++){
-        sorted_obj[keys[k]] = obj[keys[k]];
-    }    
-    return sorted_obj;
-};
 
 function printDate(date){
 	return (date.getDate() < 10 ? '0'+date.getDate() : date.getDate()) + '/' + (date.getMonth() < 10 ? '0'+(date.getMonth()) : date.getMonth() )  + '/' + date.getFullYear();
@@ -94,27 +73,26 @@ function getNewURL(){
 	return generateURL(actualDate,actualDateBack, origem, actualDestin);
 }
 
-var sys = require("system"),
-page = require("webpage").create(),
-logResources = false;
+var page = require("webpage").create();
 
 var i = 0;
 function abrePaginaRecursivo(){
-	page.clearCookies();
 	var url = getNewURL();
 	page.open(url);
+	return true;
 };
 
 
 setTimeout(function(){
-	abrePaginaRecursivo();
+	return abrePaginaRecursivo();
 },0);
 
 var timeout = 0;
 var api = require('webpage').create();
 var loop = setInterval(function(){
 	stop = page.evaluate(function(){
-		return ($('#CreateHintBoxyDIVFundo').size() == 0)
+		if (window.hasOwnProperty('$'))
+			return ($('#CreateHintBoxyDIVFundo').size() == 0)
 	});
 	
 	actualURL = page.url;
@@ -144,14 +122,14 @@ var loop = setInterval(function(){
 				"searchUrl": actualURL
 			  })
 			};
-	
-//			api.open('http://127.0.0.1/flights/', settings, function(status) {
-//		  		console.log('Status: ' + status);
-//				console.log("");
-//				console.log(actualPrice);
-				abrePaginaRecursivo();
-//			})
-			//console.log(JSON.stringify(allData));
+			api = require("webpage").create();
+			api.open('http://127.0.0.1/flights/', settings, function(status) {
+		  		console.log('Status: ' + status);
+				console.log("");
+				console.log(actualPrice);
+				page.clearCookies();
+				return abrePaginaRecursivo();
+			})
 		}
 	}
 	
