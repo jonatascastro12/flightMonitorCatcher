@@ -1,10 +1,12 @@
 var origem = "Rio%20de%20Janeiro%20/%20RJ,%20Brasil,%20Todos%20os%20aeroportos%20(RIO)";
 
 var destinos = [
+'Orlando%20/%20FL,%20Estados%20Unidos,%20Todos%20os%20Aeroportos%20(ORL)',
 'Madri,%20Espanha,%20Barajas%20(MAD)',
 'Paris,%20Franca,%20Todos%20os%20aeroportos%20(PAR)',
 'Lisboa,%20Portugal,%20Portela%20(LIS)'
-];
+]
+;
 
 var menorPreco = 350;
 var daysRange = [10,15];
@@ -55,10 +57,10 @@ function getDateLater(td, days){
 }
 
 function generateURL(dataIda, dataVolta, origem, destino){
-	console.log("");console.log("");
-	console.log(dataIda);
-	console.log(dataVolta);
-	console.log("****DESTINO: "+destino);
+	//console.log("");console.log("");
+	//console.log(dataIda);
+	//console.log(dataVolta);
+	//console.log("****DESTINO: "+destino);
 	return "http://www.submarinoviagens.com.br/passagens/selecionarvoo?SomenteIda=false" + 
 			"&Origem=" + origem + "&Destino=" + destino + 
 			"&Origem=" + destino + "&Destino=" + origem + 
@@ -76,37 +78,45 @@ function getNewURL(){
 var page = require("webpage").create();
 
 var i = 0;
+
+page.onInitialized = function(){
+	console.log("PAGE CREATED");
+	loopClear = setInterval(loop,2000);
+};
+
 function abrePaginaRecursivo(){
 	var url = getNewURL();
 	page.open(url);
-	return true;
+	return;
 };
 
 
 setTimeout(function(){
-	return abrePaginaRecursivo();
+	 abrePaginaRecursivo();
 },0);
 
 var timeout = 0;
 var api = require('webpage').create();
+var stop = false;
+var loopClear;
 var loop = setInterval(function(){
+	console.log("TESTE");
 	stop = page.evaluate(function(){
 		if (window.hasOwnProperty('$'))
-			return ($('#CreateHintBoxyDIVFundo').size() == 0)
+			return (document.getElementById('CreateHintBoxyDIVFundo') != null);
+		return 0;
 	});
 	
 	actualURL = page.url;
-	
-	if (stop || timeout > 60){
-		timeout = 0;
-		
-		actualPrice = page.evaluate(function(){
+	if (stop || timeout > 10){
+		actualPrice = page.evaluate(function(){		
 			if (window.hasOwnProperty('$'))
-				return $('.spanBestPriceOneStop').text().replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1;
+				return document.getElementsByClassName('spanBestPriceOneStop')[0].innerText.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1;
+			return false;
 		});
-		
-		if (actualPrice >0 || timeout > 60){
-		
+		if (actualPrice > 0 || timeout > 10){
+			clearInterval(loopClear);
+			timeout = 0;
 			var settings = {
 			  operation: "POST",
 			  encoding: "utf8",
@@ -123,28 +133,18 @@ var loop = setInterval(function(){
 			  })
 			};
 			api = require("webpage").create();
-			api.open('http://127.0.0.1/flights/', settings, function(status) {
-		  		console.log('Status: ' + status);
-				console.log("");
+			api.open('http://ec2-54-94-212-16.sa-east-1.compute.amazonaws.com/flights/', settings, function(status) {
+		 		//console.log('Status: ' + status);
+				//console.log("");
 				console.log(actualPrice);
 				page.clearCookies();
-				return abrePaginaRecursivo();
-			})
+				abrePaginaRecursivo();
+			});
 		}
 	}
 	
 	timeout++;
-	
 	if (actualPrice < menorPreco && actualPrice != 0){
-		clearInterval(loop);
-		
-		console.log('**********MELHOR PREÇO************');
-		console.log(actualPrice);
-		console.log('**********LAST URL************');
-		console.log(actualURL);
-		console.log('**********ACTUAL URL************');
-		console.log(page.url);
-		
-		phantom.exit();
+		//phantom.exit();
 	}
-}, 2000);
+},2000);
