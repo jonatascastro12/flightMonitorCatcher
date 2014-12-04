@@ -1,10 +1,15 @@
-var origem = "Rio%20de%20Janeiro%20/%20RJ,%20Brasil,%20Todos%20os%20aeroportos%20(RIO)";
+var origem = "Rio de Janeiro";
 
 var destinos = [
-'Orlando%20/%20FL,%20Estados%20Unidos,%20Todos%20os%20Aeroportos%20(ORL)',
-'Madri,%20Espanha,%20Barajas%20(MAD)',
-'Paris,%20Franca,%20Todos%20os%20aeroportos%20(PAR)',
-'Lisboa,%20Portugal,%20Portela%20(LIS)'
+'Atenas',
+'Veneza',
+'Nova Iorque',
+'Orlando',
+'Madri',
+'Paris',
+'Lisboa',
+'Miami',
+'Los Angeles'
 ]
 ;
 
@@ -80,9 +85,17 @@ var page = require("webpage").create();
 var i = 0;
 
 page.onInitialized = function(){
-	console.log("PAGE CREATED");
+	console.log(new Date());
 	loopClear = setInterval(loop,2000);
 };
+
+page.onError = function(msg,trace){
+	clearInterval(loopClear);
+	timeout = 0;
+	page.clearCookies();
+	abrePaginaRecursivo();
+	return;
+}
 
 function abrePaginaRecursivo(){
 	var url = getNewURL();
@@ -100,7 +113,6 @@ var api = require('webpage').create();
 var stop = false;
 var loopClear;
 var loop = setInterval(function(){
-	console.log("TESTE");
 	stop = page.evaluate(function(){
 		if (window.hasOwnProperty('$'))
 			return (document.getElementById('CreateHintBoxyDIVFundo') != null);
@@ -108,13 +120,13 @@ var loop = setInterval(function(){
 	});
 	
 	actualURL = page.url;
-	if (stop || timeout > 10){
+	if (stop || timeout > 20){
 		actualPrice = page.evaluate(function(){		
 			if (window.hasOwnProperty('$'))
 				return document.getElementsByClassName('spanBestPriceOneStop')[0].innerText.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1;
 			return false;
 		});
-		if (actualPrice > 0 || timeout > 10){
+		if (actualPrice > 0 || timeout > 20){
 			clearInterval(loopClear);
 			timeout = 0;
 			var settings = {
@@ -133,13 +145,18 @@ var loop = setInterval(function(){
 			  })
 			};
 			api = require("webpage").create();
-			api.open('http://ec2-54-94-212-16.sa-east-1.compute.amazonaws.com/flights/', settings, function(status) {
-		 		//console.log('Status: ' + status);
-				//console.log("");
-				console.log(actualPrice);
+			if (actualPrice > 0){
+				api.open('http://ec2-54-94-212-16.sa-east-1.compute.amazonaws.com/flights/', settings, function(status) {
+			 		//console.log('Status: ' + status);
+					//console.log("");
+					console.log(actualPrice);
+					page.clearCookies();
+					abrePaginaRecursivo();
+				});
+			}else{
 				page.clearCookies();
 				abrePaginaRecursivo();
-			});
+			}
 		}
 	}
 	
