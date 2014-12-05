@@ -3,13 +3,14 @@ var origem = "Rio de Janeiro";
 var destinos = [
 'Atenas',
 'Veneza',
-'Nova Iorque',
-'Orlando',
+//'Nova Iorque',
+//'Orlando',
 'Madri',
 'Paris',
-'Lisboa',
-'Miami',
-'Los Angeles'
+//'Lisboa',
+//'Miami',
+//'Los Angeles',
+'Roma'
 ]
 ;
 
@@ -22,7 +23,7 @@ var allData = {};
 
 
 function printDate(date){
-	return (date.getDate() < 10 ? '0'+date.getDate() : date.getDate()) + '/' + (date.getMonth() < 10 ? '0'+(date.getMonth()) : date.getMonth() )  + '/' + date.getFullYear();
+	return (date.getDate()*1 < 10 ? '0'+date.getDate()*1 : date.getDate()*1) + '/' + (date.getMonth()*1 < 9 ? '0'+(date.getMonth()*1+1) : date.getMonth()*1+1 )  + '/' + date.getFullYear();
 }
 
 function getRandomInt(min, max) {
@@ -32,8 +33,8 @@ function getRandomInt(min, max) {
 function generateDateArray(range){
 	var piecesMin = range[0].split('/');
 	var piecesMax = range[1].split('/');
-	var dateMin = new Date(piecesMin[2], piecesMin[1], piecesMin[0]);
-	var dateMax = new Date(piecesMax[2], piecesMax[1], piecesMax[0]);
+	var dateMin = new Date(piecesMin[2], piecesMin[1]*1 - 1, piecesMin[0]);
+	var dateMax = new Date(piecesMax[2], piecesMax[1]*1 - 1, piecesMax[0]);
 	
 	var dateArray = [];
 	
@@ -46,8 +47,6 @@ function generateDateArray(range){
 	return dateArray;
 }
 
-var dateRange = ['01/03/2015','01/06/2015'];
-var dates = generateDateArray(dateRange);
 
 function convertDateFormat(td){
 	var pieces = td.split('/');
@@ -56,10 +55,14 @@ function convertDateFormat(td){
 
 function getDateLater(td, days){
 	var pieces = td.split('/');
-	var date = new Date(pieces[2], pieces[1], pieces[0]);
-	date.setDate(date.getDate() + days);	
+	var date = new Date(pieces[2]*1, pieces[1]*1-1, pieces[0]*1);
+	date.setDate(date.getDate()*1 + days);	
 	return  printDate(date);
 }
+
+var dateRange = [getDateLater(printDate(new Date()), 10),'30/09/2015'];
+console.log(dateRange);
+var dates = generateDateArray(dateRange);
 
 function generateURL(dataIda, dataVolta, origem, destino){
 	//console.log("");console.log("");
@@ -84,8 +87,14 @@ var page = require("webpage").create();
 
 var i = 0;
 
+var loopTimes = 0; var maxTimes = 6;
 page.onInitialized = function(){
 	console.log(new Date());
+	loopTimes++;
+	if (loopTimes > maxTimes) {
+		console.log("Morre phantom");
+		phantom.exit();
+	}
 	loopClear = setInterval(loop,2000);
 };
 
@@ -93,12 +102,14 @@ page.onError = function(msg,trace){
 	clearInterval(loopClear);
 	timeout = 0;
 	page.clearCookies();
+	page.close();
 	abrePaginaRecursivo();
 	return;
 }
 
 function abrePaginaRecursivo(){
 	var url = getNewURL();
+	page = require('webpage').create();
 	page.open(url);
 	return;
 };
@@ -114,15 +125,13 @@ var stop = false;
 var loopClear;
 var loop = setInterval(function(){
 	stop = page.evaluate(function(){
-		if (window.hasOwnProperty('$'))
-			return (document.getElementById('CreateHintBoxyDIVFundo') != null);
-		return 0;
+		return (document.getElementById('CreateHintBoxyDIVFundo') != null);
 	});
 	
 	actualURL = page.url;
 	if (stop || timeout > 20){
 		actualPrice = page.evaluate(function(){		
-			if (window.hasOwnProperty('$'))
+			if (document.getElementsByClassName('spanBestPriceOneStop')[0] != undefined)
 				return document.getElementsByClassName('spanBestPriceOneStop')[0].innerText.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1;
 			return false;
 		});
@@ -149,12 +158,15 @@ var loop = setInterval(function(){
 				api.open('http://ec2-54-94-212-16.sa-east-1.compute.amazonaws.com/flights/', settings, function(status) {
 			 		//console.log('Status: ' + status);
 					//console.log("");
-					console.log(actualPrice);
+					console.log(actualDestin + ' - ' + actualDate + '-' + actualDateBack + ' - ' + actualPrice);
 					page.clearCookies();
+					page.close();
+					api.close();
 					abrePaginaRecursivo();
 				});
 			}else{
 				page.clearCookies();
+				page.close();
 				abrePaginaRecursivo();
 			}
 		}
