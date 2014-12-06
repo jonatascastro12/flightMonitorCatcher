@@ -1,19 +1,8 @@
-var origem = "Rio de Janeiro";
-
-var destinos = [
-'Atenas',
-'Veneza',
-//'Nova Iorque',
-//'Orlando',
-'Madri',
-'Paris',
-//'Lisboa',
-//'Miami',
-//'Los Angeles',
-'Roma'
-]
-;
-
+var fs = require('fs');
+var content = JSON.parse(fs.read('/home/ubuntu/flightMonitorCatcher/destinos.json'));
+var origem = content[0].origem;
+var destinos = content[0].destinos;
+console.log(destinos);
 var menorPreco = 350;
 var daysRange = [10,15];
 var actualPrice;
@@ -80,6 +69,7 @@ function getNewURL(){
 	actualDate = dates[getRandomInt(0,dates.length-1)];
 	actualDateBack = getDateLater(actualDate,getRandomInt(daysRange[0],daysRange[1]));
 	actualDestin = destinos[getRandomInt(0,destinos.length-1)];
+	console.log(actualDestin);
 	return generateURL(actualDate,actualDateBack, origem, actualDestin);
 }
 
@@ -87,19 +77,8 @@ var page = require("webpage").create();
 
 var i = 0;
 
-var loopTimes = 0; var maxTimes = 6;
-page.onInitialized = function(){
-	console.log(new Date());
-	loopTimes++;
-	if (loopTimes > maxTimes) {
-		console.log("Morre phantom");
-		phantom.exit();
-	}
-	loopClear = setInterval(loop,2000);
-};
 
 page.onError = function(msg,trace){
-	clearInterval(loopClear);
 	timeout = 0;
 	page.clearCookies();
 	page.close();
@@ -107,7 +86,14 @@ page.onError = function(msg,trace){
 	return;
 }
 
+var loopTimes = 0;
+var maxTimes = 10;
 function abrePaginaRecursivo(){
+	loopTimes++;
+	if (loopTimes > maxTimes) {
+		console.log("SAINDO");
+		phantom.exit();
+	}
 	var url = getNewURL();
 	page = require('webpage').create();
 	page.open(url);
@@ -130,13 +116,21 @@ var loop = setInterval(function(){
 	
 	actualURL = page.url;
 	if (stop || timeout > 20){
-		actualPrice = page.evaluate(function(){		
+		actualPrice = page.evaluate(function(){
+			var precos = [];
+			if (document.getElementsByClassName('spanBestPriceNoStop')[0] != undefined)
+				
+				if (document.getElementsByClassName('spanBestPriceNoStop')[0].innerText.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1 > 0)
+					precos.push(document.getElementsByClassName('spanBestPriceNoStop')[0].innerText.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1);
 			if (document.getElementsByClassName('spanBestPriceOneStop')[0] != undefined)
-				return document.getElementsByClassName('spanBestPriceOneStop')[0].innerText.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1;
-			return false;
+				precos.push(document.getElementsByClassName('spanBestPriceOneStop')[0].innerText.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1);
+			if (document.getElementsByClassName('spanBestPriceTwoStop')[0] != undefined)
+				precos.push(document.getElementsByClassName('spanBestPriceTwoStop')[0].innerText.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1);
+			if (precos.length==0)
+				return false;
+			return precos.sort()[0]
 		});
 		if (actualPrice > 0 || timeout > 20){
-			clearInterval(loopClear);
 			timeout = 0;
 			var settings = {
 			  operation: "POST",
