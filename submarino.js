@@ -105,6 +105,22 @@ setTimeout(function(){
 	 abrePaginaRecursivo();
 },0);
 
+function cleanData(data){
+	return data.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1;
+};
+
+
+function removeElementsWithValue(arr, val) {
+    var i = arr.length;
+    while (i--) {
+	arr[i] = arr[i]*1;
+        if (arr[i] === val) {
+            arr.splice(i, 1);
+        }
+    }
+    return arr;
+}	
+
 var timeout = 0;
 var api = require('webpage').create();
 var stop = false;
@@ -115,22 +131,41 @@ var loop = setInterval(function(){
 	});
 	
 	actualURL = page.url;
-	if (stop || timeout > 20){
+	if (stop || timeout > 25){
 		actualPrice = page.evaluate(function(){
+			function cleanData(data){
+				return data.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1;
+			};
+			function removeElementsWithValue(arr, val) {
+			    var i = arr.length;
+			    while (i--) {
+				arr[i] = arr[i]*1;
+			        if (arr[i] === val) {
+			            arr.splice(i, 1);
+			        }
+			    }
+			    return arr;
+			i};	
 			var precos = [];
-			if (document.getElementsByClassName('spanBestPriceNoStop')[0] != undefined)
-				
-				if (document.getElementsByClassName('spanBestPriceNoStop')[0].innerText.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1 > 0)
-					precos.push(document.getElementsByClassName('spanBestPriceNoStop')[0].innerText.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1);
+			if (document.getElementsByClassName('spanBestPriceNoStop')[0] !== undefined)
+				precos.push(cleanData(document.getElementsByClassName('spanBestPriceNoStop')[0].innerText));
 			if (document.getElementsByClassName('spanBestPriceOneStop')[0] != undefined)
-				precos.push(document.getElementsByClassName('spanBestPriceOneStop')[0].innerText.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1);
+				precos.push(cleanData(document.getElementsByClassName('spanBestPriceOneStop')[0].innerText));
 			if (document.getElementsByClassName('spanBestPriceTwoStop')[0] != undefined)
-				precos.push(document.getElementsByClassName('spanBestPriceTwoStop')[0].innerText.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1);
+				precos.push(cleanData(document.getElementsByClassName('spanBestPriceTwoStop')[0].innerText));
+
 			if (precos.length==0)
 				return false;
-			return precos.sort()[0]
+
+			var newArray = removeElementsWithValue(precos, 0);
+			
+			if (newArray.length==0)
+				return false;
+
+			return newArray.sort()[0];
+			
 		});
-		if (actualPrice > 0 || timeout > 20){
+		if (actualPrice > 0 || timeout > 25){
 			timeout = 0;
 			var settings = {
 			  operation: "POST",
