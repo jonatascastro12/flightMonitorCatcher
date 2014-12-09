@@ -208,7 +208,7 @@ var loop = setInterval(function(){
 				try{
 					page.clearCookies();
 					page.close();
-				catch(e){
+				}catch(e){
 					console.log(e);		
 				}
 				abrePaginaRecursivo();
