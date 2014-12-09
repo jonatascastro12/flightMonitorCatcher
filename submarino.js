@@ -208,7 +208,7 @@ var loop = setInterval(function(){
 			};
 			api = require("webpage").create();
 			if (actualPrice > 0){
-				api.open('http://ec2-54-94-212-16.sa-east-1.compute.amazonaws.com/flights/', settings, function(status) {
+				api.open('http://ec2-54-148-212-165.us-west-2.compute.amazonaws.com/flights/', settings, function(status) {
 			 		//console.log('Status: ' + status);
 					//console.log("");
 					console.log(actualDestin + ' - ' + actualDate + '-' + actualDateBack + ' - ' + actualPrice);
