@@ -202,10 +202,10 @@ var loop = setInterval(function(){
 					try{
 						page.clearCookies();
 						page.close();
+						api.close();
 					}catch(e){
 						console.log(e);
 					}
-					api.close();
 					abrePaginaRecursivo();
 				});
 			}else{
