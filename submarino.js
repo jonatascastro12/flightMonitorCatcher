@@ -106,7 +106,10 @@ var loopTimes = 0;
 var maxTimes = 10;
 var free = true;
 function abrePaginaRecursivo(){
-	if (!free) return
+	if (!free){
+		loopTimes++;
+		return
+	}
 	loopTimes++;
 	if (loopTimes > maxTimes) {
 		console.log("SAINDO");
