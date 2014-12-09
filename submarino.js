@@ -75,16 +75,19 @@ function getNewURL(){
 
 var page = require("webpage").create();
 
+var page_ = function(){};
+
 var i = 0;
 
 
-page.onError = function(msg,trace){
+page_.onError = function(msg,trace){
 	timeout = 0;
 	page.clearCookies();
 	page.close();
 	abrePaginaRecursivo();
 	return;
 }
+
 
 var loopTimes = 0;
 var maxTimes = 10;
@@ -96,6 +99,7 @@ function abrePaginaRecursivo(){
 	}
 	var url = getNewURL();
 	page = require('webpage').create();
+	page.onError = page_.onError;
 	page.open(url);
 	return;
 };
@@ -126,45 +130,52 @@ var api = require('webpage').create();
 var stop = false;
 var loopClear;
 var loop = setInterval(function(){
-	stop = page.evaluate(function(){
-		return (document.getElementById('CreateHintBoxyDIVFundo') != null);
-	});
-	
-	actualURL = page.url;
-	if (stop || timeout > 25){
-		actualPrice = page.evaluate(function(){
-			function cleanData(data){
-				return data.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1;
-			};
-			function removeElementsWithValue(arr, val) {
-			    var i = arr.length;
-			    while (i--) {
-				arr[i] = arr[i]*1;
-			        if (arr[i] === val) {
-			            arr.splice(i, 1);
-			        }
-			    }
-			    return arr;
-			i};	
-			var precos = [];
-			if (document.getElementsByClassName('spanBestPriceNoStop')[0] !== undefined)
-				precos.push(cleanData(document.getElementsByClassName('spanBestPriceNoStop')[0].innerText));
-			if (document.getElementsByClassName('spanBestPriceOneStop')[0] != undefined)
-				precos.push(cleanData(document.getElementsByClassName('spanBestPriceOneStop')[0].innerText));
-			if (document.getElementsByClassName('spanBestPriceTwoStop')[0] != undefined)
-				precos.push(cleanData(document.getElementsByClassName('spanBestPriceTwoStop')[0].innerText));
-
-			if (precos.length==0)
-				return false;
-
-			var newArray = removeElementsWithValue(precos, 0);
-			
-			if (newArray.length==0)
-				return false;
-
-			return newArray.sort()[0];
-			
+	try{
+		stop = page.evaluate(function(){
+			return (document.getElementById('CreateHintBoxyDIVFundo') != null);
 		});
+		actualURL = page.url;
+	}catch(e){
+		console.log(e);
+	}
+	if (stop || timeout > 25){
+		try{
+			actualPrice = page.evaluate(function(){
+				function cleanData(data){
+					return data.replace(/ /g, '').replace(/\n/g, '').replace('R$','').replace(',','.')*1;
+				};
+				function removeElementsWithValue(arr, val) {
+				    var i = arr.length;
+				    while (i--) {
+					arr[i] = arr[i]*1;
+				        if (arr[i] === val) {
+				            arr.splice(i, 1);
+				        }
+				    }
+				    return arr;
+				i};	
+				var precos = [];
+				if (document.getElementsByClassName('spanBestPriceNoStop')[0] !== undefined)
+					precos.push(cleanData(document.getElementsByClassName('spanBestPriceNoStop')[0].innerText));
+				if (document.getElementsByClassName('spanBestPriceOneStop')[0] != undefined)
+					precos.push(cleanData(document.getElementsByClassName('spanBestPriceOneStop')[0].innerText));
+				if (document.getElementsByClassName('spanBestPriceTwoStop')[0] != undefined)
+					precos.push(cleanData(document.getElementsByClassName('spanBestPriceTwoStop')[0].innerText));
+	
+				if (precos.length==0)
+					return false;
+	
+				var newArray = removeElementsWithValue(precos, 0);
+				
+				if (newArray.length==0)
+					return false;
+	
+				return newArray.sort()[0];
+				
+			});
+		}catch(e){
+			actualPrice = 0;
+		}
 		if (actualPrice > 0 || timeout > 25){
 			timeout = 0;
 			var settings = {
@@ -194,8 +205,12 @@ var loop = setInterval(function(){
 					abrePaginaRecursivo();
 				});
 			}else{
-				page.clearCookies();
-				page.close();
+				try{
+					page.clearCookies();
+					page.close();
+				catch(e){
+					console.log(e);		
+				}
 				abrePaginaRecursivo();
 			}
 		}
