@@ -49,6 +49,13 @@ function getDateLater(td, days){
 	return  printDate(date);
 }
 
+function getNextWeekend(td){
+	var pieces = td.split('/');
+	var date = new Date(pieces[2]*1, pieces[1]*1-1, pieces[0]*1);
+	date.setDate(date.getDate() + (5 - date.getDay()));
+	return  printDate(date);
+}
+
 var dateRange = [getDateLater(printDate(new Date()), 10),'30/09/2015'];
 console.log(dateRange);
 var dates = generateDateArray(dateRange);
@@ -69,7 +76,7 @@ function getNewURL(){
 	actualDestin = destinos[getRandomInt(0,destinos.length-1)];
 	if (["Belo Horizonte", "Navegantes"].indexOf(actualDestin) != -1){
 		actualDate = dates[getRandomInt(0,dates.length-1)];
-		actualDate.setDate(actualDate.getDate() + (5 - actualDate.getDay()));
+		actualDate = getNextWeekend(actualDate);
 		actualDateBack = getDateLater(actualDate,2);
 	}else{
 		actualDate = dates[getRandomInt(0,dates.length-1)];
