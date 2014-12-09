@@ -66,9 +66,15 @@ function generateURL(dataIda, dataVolta, origem, destino){
 }
 
 function getNewURL(){
-	actualDate = dates[getRandomInt(0,dates.length-1)];
-	actualDateBack = getDateLater(actualDate,getRandomInt(daysRange[0],daysRange[1]));
 	actualDestin = destinos[getRandomInt(0,destinos.length-1)];
+	if (["Belo Horizonte", "Navegantes"].indexOf(actualDestin) != -1){
+		actualDate = dates[getRandomInt(0,dates.length-1)];
+		actualDate.setDate(actualDate.getDate() + (5 - actualDate.getDay()));
+		actualDateBack = getDateLater(actualDate,2);
+	}else{
+		actualDate = dates[getRandomInt(0,dates.length-1)];
+		actualDateBack = getDateLater(actualDate,getRandomInt(daysRange[0],daysRange[1]));
+	}
 	console.log(actualDestin);
 	return generateURL(actualDate,actualDateBack, origem, actualDestin);
 }
