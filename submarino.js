@@ -104,7 +104,9 @@ page_.onError = function(msg,trace){
 
 var loopTimes = 0;
 var maxTimes = 10;
+var free = true;
 function abrePaginaRecursivo(){
+	if (!free) return
 	loopTimes++;
 	if (loopTimes > maxTimes) {
 		console.log("SAINDO");
@@ -191,6 +193,7 @@ var loop = setInterval(function(){
 		}
 		if (actualPrice > 0 || timeout > 25){
 			timeout = 0;
+			free = false;
 			var settings = {
 			  operation: "POST",
 			  encoding: "utf8",
@@ -219,6 +222,7 @@ var loop = setInterval(function(){
 					}catch(e){
 						console.log(e);
 					}
+					free = true;
 					abrePaginaRecursivo();
 				});
 			}else{
