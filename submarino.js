@@ -199,8 +199,12 @@ var loop = setInterval(function(){
 			 		//console.log('Status: ' + status);
 					//console.log("");
 					console.log(actualDestin + ' - ' + actualDate + '-' + actualDateBack + ' - ' + actualPrice);
-					page.clearCookies();
-					page.close();
+					try{
+						page.clearCookies();
+						page.close();
+					}catch(e){
+						console.log(e);
+					}
 					api.close();
 					abrePaginaRecursivo();
 				});
