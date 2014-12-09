@@ -95,8 +95,13 @@ var i = 0;
 
 page_.onError = function(msg,trace){
 	timeout = 0;
-	page.clearCookies();
-	page.close();
+	clearInterval(loopClear);
+	try{
+		page.clearCookies();
+		page.close();
+	}catch(e){
+		console.log(e);
+	}
 	abrePaginaRecursivo();
 	return;
 }
@@ -104,12 +109,8 @@ page_.onError = function(msg,trace){
 
 var loopTimes = 0;
 var maxTimes = 10;
-var free = true;
+var loopClear;
 function abrePaginaRecursivo(){
-	if (!free){
-		loopTimes++;
-		return
-	}
 	loopTimes++;
 	if (loopTimes > maxTimes) {
 		console.log("SAINDO");
@@ -118,7 +119,9 @@ function abrePaginaRecursivo(){
 	var url = getNewURL();
 	page = require('webpage').create();
 	page.onError = page_.onError;
-	page.open(url);
+	page.open(url, function(){
+		loopClear = setInterval(loop, 2000);
+	});
 	return;
 };
 
@@ -146,8 +149,7 @@ function removeElementsWithValue(arr, val) {
 var timeout = 0;
 var api = require('webpage').create();
 var stop = false;
-var loopClear;
-var loop = setInterval(function(){
+var loop = function(){
 	try{
 		stop = page.evaluate(function(){
 			return (document.getElementById('CreateHintBoxyDIVFundo') != null);
@@ -196,7 +198,7 @@ var loop = setInterval(function(){
 		}
 		if (actualPrice > 0 || timeout > 25){
 			timeout = 0;
-			free = false;
+			clearInterval(loopClear);
 			var settings = {
 			  operation: "POST",
 			  encoding: "utf8",
@@ -225,7 +227,6 @@ var loop = setInterval(function(){
 					}catch(e){
 						console.log(e);
 					}
-					free = true;
 					abrePaginaRecursivo();
 				});
 			}else{
@@ -244,4 +245,4 @@ var loop = setInterval(function(){
 	if (actualPrice < menorPreco && actualPrice != 0){
 		//phantom.exit();
 	}
-},2000);
+}
