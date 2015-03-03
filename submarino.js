@@ -4,7 +4,7 @@ var origem = content[0].origem;
 var destinos = content[0].destinos;
 console.log(destinos);
 var menorPreco = 350;
-var daysRange = [10,15];
+var daysRange = [6,14];
 var actualPrice;
 var actualDate;
 var actualDateBack;
@@ -56,7 +56,8 @@ function getNextWeekend(td){
 	return  printDate(date);
 }
 
-var dateRange = [getDateLater(printDate(new Date()), 10),'30/09/2015'];
+//var dateRange = [getDateLater(printDate(new Date()), 10),'30/09/2015'];
+var dateRange = ['01/08/2015','30/09/2015'];
 console.log(dateRange);
 var dates = generateDateArray(dateRange);
 
@@ -74,7 +75,7 @@ function generateURL(dataIda, dataVolta, origem, destino){
 
 function getNewURL(){
 	actualDestin = destinos[getRandomInt(0,destinos.length-1)];
-	if (["Belo Horizonte", "Navegantes"].indexOf(actualDestin) != -1){
+	if (["Belo Horizonte"].indexOf(actualDestin) != -1){
 		actualDate = dates[getRandomInt(0,dates.length-1)];
 		actualDate = getNextWeekend(actualDate);
 		actualDateBack = getDateLater(actualDate,2);

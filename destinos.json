@@ -1,4 +1,5 @@
 [{
-"origem": "Rio de Janeiro",
-"destinos": ["Buenos Aires", "Cancun", "Punta Cana", "Navegantes", "Belo Horizonte","Atenas", "Nova Iorque", "Miami", "Orlando", "Paris", "Londres", "Madri", "Veneza", "Vienna", "Istambul"]
+"origem": "RIO",
+"destinos2": ["Caldas Novas","Florianopolis","Navegantes","Fernando de Noronha","Santiago, Chile, Comodoro Arturo Merino Benitez (SCL)","Bariloche","Montevideo"],
+"destinos": ["Toronto", "Fort Lauderdale", "Montevideo","Santiago, Chile, Comodoro Arturo Merino Benitez (SCL)", "Buenos Aires", "Frankfurt", "Lisboa", "Porto, Portugal, Francisco Sa Carneiro (OPO)", "Barcelona", "Bucareste / IF, Romenia, Todos os Aeroportos (BUH)", "Cancun", "Punta Cana","Atenas", "Nova Iorque", "Miami", "Orlando", "Paris", "Londres", "Madri", "Veneza", "Vienna", "Istambul"]
 }]
