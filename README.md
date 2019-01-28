@@ -6,4 +6,4 @@ This is an handmade scraper that visits Submarino's air prices page, according t
 - Install PhantomJS (http://phantomjs.org/)
 - Run `phantom submarino.js`
 
-This project is no longer maintained.
+**This project is no longer maintained.**
